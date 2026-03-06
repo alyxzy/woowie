@@ -1,0 +1,153 @@
+export default function ThaiConsonantsLearningGame() {
+  const { useMemo, useState } = React;
+
+  const consonants = useMemo(
+    () => [
+      { thai: "ก", name: "ko kai", hint: "chicken" },
+      { thai: "ข", name: "kho khai", hint: "egg" },
+      { thai: "ค", name: "kho khwai", hint: "buffalo" },
+      { thai: "ง", name: "ngo ngu", hint: "snake" },
+      { thai: "จ", name: "cho chan", hint: "plate" },
+      { thai: "ช", name: "cho chang", hint: "elephant" },
+      { thai: "ด", name: "do dek", hint: "child" },
+      { thai: "ต", name: "to tao", hint: "turtle" },
+      { thai: "ท", name: "tho thahan", hint: "soldier" },
+      { thai: "น", name: "no nu", hint: "mouse" },
+      { thai: "บ", name: "bo baimai", hint: "leaf" },
+      { thai: "ป", name: "po pla", hint: "fish" },
+      { thai: "ผ", name: "pho phueng", hint: "bee" },
+      { thai: "พ", name: "pho phan", hint: "tray" },
+      { thai: "ฟ", name: "fo fan", hint: "teeth" },
+      { thai: "ม", name: "mo ma", hint: "horse" },
+      { thai: "ย", name: "yo yak", hint: "giant" },
+      { thai: "ร", name: "ro ruea", hint: "boat" },
+      { thai: "ล", name: "lo ling", hint: "monkey" },
+      { thai: "ว", name: "wo waen", hint: "ring" },
+      { thai: "ส", name: "so suea", hint: "tiger" },
+      { thai: "ห", name: "ho hip", hint: "chest" },
+      { thai: "อ", name: "o ang", hint: "basin" },
+      { thai: "ฮ", name: "ho nokhuk", hint: "owl" },
+    ],
+    []
+  );
+
+  const shuffle = (arr) => [...arr].sort(() => Math.random() - 0.5);
+
+  const getQuestion = () => {
+    const correct = consonants[Math.floor(Math.random() * consonants.length)];
+    const wrongChoices = shuffle(
+      consonants.filter((c) => c.thai !== correct.thai)
+    ).slice(0, 3);
+
+    return {
+      correct,
+      options: shuffle([correct, ...wrongChoices]),
+    };
+  };
+
+  const [question, setQuestion] = useState(getQuestion());
+  const [score, setScore] = useState(0);
+  const [hearts, setHearts] = useState(3);
+  const [message, setMessage] = useState("");
+  const [gameOver, setGameOver] = useState(false);
+
+  const handleAnswer = (option) => {
+    if (gameOver) return;
+
+    if (option.thai === question.correct.thai) {
+      setScore((prev) => prev + 1);
+      setMessage(`Correct! ${question.correct.thai} is ${question.correct.name}.`);
+      setQuestion(getQuestion());
+    } else {
+      const newHearts = hearts - 1;
+      setHearts(newHearts);
+      if (newHearts <= 0) {
+        setMessage(
+          `Game Over! The correct answer was ${question.correct.thai} (${question.correct.name}).`
+        );
+        setGameOver(true);
+      } else {
+        setMessage(
+          `Wrong! That was ${option.name}. The correct answer is ${question.correct.name}.`
+        );
+      }
+    }
+  };
+
+  const restartGame = () => {
+    setScore(0);
+    setHearts(3);
+    setMessage("");
+    setGameOver(false);
+    setQuestion(getQuestion());
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50 p-6 flex items-center justify-center">
+      <div className="w-full max-w-2xl bg-white rounded-3xl shadow-xl p-8 border border-pink-100">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            Thai Consonants Learning Game
+          </h1>
+          <p className="text-gray-600">
+            Choose the correct Thai consonant. You only have 3 hearts.
+          </p>
+        </div>
+
+        <div className="flex items-center justify-between mb-6">
+          <div className="text-lg font-semibold text-gray-700">Score: {score}</div>
+          <div className="text-2xl" aria-label={`Lives left: ${hearts}`}>
+            {Array.from({ length: hearts }).map((_, i) => (
+              <span key={i}>❤️</span>
+            ))}
+            {Array.from({ length: 3 - hearts }).map((_, i) => (
+              <span key={`empty-${i}`} className="opacity-30">❤️</span>
+            ))}
+          </div>
+        </div>
+
+        {!gameOver && (
+          <div className="text-center mb-8">
+            <p className="text-gray-500 mb-2">Which consonant is:</p>
+            <div className="text-4xl md:text-5xl font-bold text-pink-600 mb-2">
+              {question.correct.name}
+            </div>
+            <p className="text-sm text-gray-500 italic">
+              Hint word: {question.correct.hint}
+            </p>
+          </div>
+        )}
+
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          {question.options.map((option) => (
+            <button
+              key={option.thai}
+              onClick={() => handleAnswer(option)}
+              disabled={gameOver}
+              className="rounded-2xl p-6 text-3xl font-bold bg-blue-100 hover:bg-blue-200 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+            >
+              {option.thai}
+            </button>
+          ))}
+        </div>
+
+        <div className="text-center min-h-[56px] mb-4">
+          {message && (
+            <p className="text-base font-medium text-gray-700 bg-gray-50 rounded-xl p-3">
+              {message}
+            </p>
+          )}
+        </div>
+
+        <div className="flex justify-center">
+          <button
+            onClick={restartGame}
+            className="px-6 py-3 rounded-2xl bg-pink-500 text-white font-semibold hover:bg-pink-600 transition shadow-md"
+          >
+            Restart Game
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
