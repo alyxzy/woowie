@@ -1,8 +1,199 @@
-export default function ThaiConsonantsLearningWebsite() {
-  const { useMemo, useState } = React;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thai Consonants Learning Game</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
 
-  const consonants = useMemo(
-    () => [
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #fff7ed, #ffffff, #fee2e2);
+      color: #1e293b;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      margin-bottom: 24px;
+    }
+
+    h1, h2, p {
+      margin-top: 0;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .hearts {
+      font-size: 30px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .letter {
+      font-size: 120px;
+      text-align: center;
+      color: #ef4444;
+      margin: 30px 0;
+      font-weight: bold;
+    }
+
+    .options {
+      display: grid;
+      gap: 12px;
+    }
+
+    button.option {
+      padding: 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      background: white;
+      text-align: left;
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 16px;
+    }
+
+    button.option:hover:not(:disabled) {
+      background: #fff1f2;
+      border-color: #fda4af;
+    }
+
+    button.option:disabled {
+      cursor: not-allowed;
+      opacity: 0.9;
+    }
+
+    .correct {
+      background: #dcfce7 !important;
+      border-color: #22c55e !important;
+    }
+
+    .wrong {
+      background: #fee2e2 !important;
+      border-color: #ef4444 !important;
+    }
+
+    .muted {
+      opacity: 0.5;
+    }
+
+    .feedback {
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 14px;
+      background: #f8fafc;
+    }
+
+    .restart-btn {
+      background: #0f172a;
+      color: white;
+      border: none;
+      border-radius: 14px;
+      padding: 10px 16px;
+      cursor: pointer;
+    }
+
+    .play-again {
+      background: #ef4444;
+      color: white;
+      border: none;
+      border-radius: 14px;
+      padding: 10px 16px;
+      cursor: pointer;
+      margin-top: 12px;
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    .score {
+      font-size: 28px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>Thai Consonants Learning Game</h1>
+      <p>Match the Thai consonant to its correct name. You only have 3 hearts.</p>
+
+      <div class="topbar">
+        <div>
+          <div>Score</div>
+          <div class="score" id="score">0</div>
+        </div>
+
+        <div>
+          <div>Lives</div>
+          <div class="hearts" id="hearts">❤️❤️❤️</div>
+        </div>
+
+        <button class="restart-btn" onclick="resetGame()">Restart</button>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="card">
+        <h2>Identify this consonant</h2>
+        <div class="letter" id="thai-letter">ก</div>
+        <p style="text-align:center;">Choose the correct Thai consonant name below</p>
+        <div class="options" id="options"></div>
+        <div class="feedback" id="feedback" style="display:none;"></div>
+      </div>
+
+      <div>
+        <div class="card">
+          <h2>How to play</h2>
+          <ul>
+            <li>Look at the Thai consonant.</li>
+            <li>Pick the correct consonant name.</li>
+            <li>You lose 1 heart for each wrong answer.</li>
+            <li>Game over after 3 mistakes.</li>
+          </ul>
+        </div>
+
+        <div class="card" id="game-over" style="display:none; background:#fef2f2; border:2px solid #fecaca;">
+          <h2 style="color:#dc2626;">Game Over</h2>
+          <p id="final-score"></p>
+          <button class="play-again" onclick="resetGame()">Play Again</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const consonants = [
       { thai: "ก", name: "ko kai", hint: "chicken", sound: "g/k" },
       { thai: "ข", name: "kho khai", hint: "egg", sound: "kh" },
       { thai: "ค", name: "kho khwai", hint: "buffalo", sound: "kh" },
@@ -20,183 +211,108 @@ export default function ThaiConsonantsLearningWebsite() {
       { thai: "ว", name: "wo waen", hint: "ring", sound: "w" },
       { thai: "ส", name: "so suea", hint: "tiger", sound: "s" },
       { thai: "ห", name: "ho hip", hint: "chest", sound: "h" },
-      { thai: "อ", name: "o ang", hint: "basin", sound: "silent/o" },
-    ],
-    []
-  );
+      { thai: "อ", name: "o ang", hint: "basin", sound: "o" }
+    ];
 
-  const shuffle = (arr) => [...arr].sort(() => Math.random() - 0.5);
+    let score = 0;
+    let lives = 3;
+    let currentQuestion = null;
+    let locked = false;
 
-  const makeQuestion = (currentLives, currentScore) => {
-    const correct = consonants[Math.floor(Math.random() * consonants.length)];
-    const wrongChoices = shuffle(
-      consonants.filter((c) => c.thai !== correct.thai)
-    ).slice(0, 3);
+    function shuffle(array) {
+      return [...array].sort(() => Math.random() - 0.5);
+    }
 
-    return {
-      correct,
-      options: shuffle([correct, ...wrongChoices]),
-      lives: currentLives,
-      score: currentScore,
-    };
-  };
+    function updateHearts() {
+      let hearts = "";
+      for (let i = 0; i < 3; i++) {
+        hearts += i < lives ? "❤️" : "🩶";
+      }
+      document.getElementById("hearts").textContent = hearts;
+    }
 
-  const [lives, setLives] = useState(3);
-  const [score, setScore] = useState(0);
-  const [question, setQuestion] = useState(() => makeQuestion(3, 0));
-  const [feedback, setFeedback] = useState("");
-  const [gameOver, setGameOver] = useState(false);
-  const [selected, setSelected] = useState(null);
+    function updateScore() {
+      document.getElementById("score").textContent = score;
+    }
 
-  const resetGame = () => {
-    setLives(3);
-    setScore(0);
-    setFeedback("");
-    setSelected(null);
-    setGameOver(false);
-    setQuestion(makeQuestion(3, 0));
-  };
+    function showQuestion() {
+      if (lives <= 0) return;
 
-  const handleAnswer = (option) => {
-    if (gameOver) return;
+      const correct = consonants[Math.floor(Math.random() * consonants.length)];
+      const wrong = shuffle(consonants.filter(c => c.thai !== correct.thai)).slice(0, 3);
+      const options = shuffle([correct, ...wrong]);
 
-    setSelected(option.thai);
+      currentQuestion = correct;
+      locked = false;
 
-    const isCorrect = option.thai === question.correct.thai;
+      document.getElementById("thai-letter").textContent = correct.thai;
+      document.getElementById("feedback").style.display = "none";
 
-    if (isCorrect) {
-      const newScore = score + 1;
-      setScore(newScore);
-      setFeedback(`Correct! ${question.correct.thai} is ${question.correct.name}.`);
+      const optionsDiv = document.getElementById("options");
+      optionsDiv.innerHTML = "";
 
-      setTimeout(() => {
-        setSelected(null);
-        setFeedback("");
-        setQuestion(makeQuestion(lives, newScore));
-      }, 900);
-    } else {
-      const newLives = lives - 1;
-      setLives(newLives);
-      setFeedback(
-        `Wrong! That was ${option.name}. The correct answer is ${question.correct.name}.`
-      );
+      options.forEach(option => {
+        const btn = document.createElement("button");
+        btn.className = "option";
+        btn.innerHTML = `
+          <strong>${option.name}</strong><br>
+          <small>Hint: ${option.hint} • Sound: ${option.sound}</small>
+        `;
+        btn.onclick = () => handleAnswer(option, btn);
+        optionsDiv.appendChild(btn);
+      });
+    }
 
-      if (newLives <= 0) {
-        setGameOver(true);
-        return;
+    function handleAnswer(option, buttonEl) {
+      if (locked || lives <= 0) return;
+      locked = true;
+
+      const buttons = document.querySelectorAll(".option");
+      const feedback = document.getElementById("feedback");
+      feedback.style.display = "block";
+
+      if (option.thai === currentQuestion.thai) {
+        score++;
+        updateScore();
+        buttonEl.classList.add("correct");
+        feedback.textContent = `Correct! ${currentQuestion.thai} is ${currentQuestion.name}.`;
+      } else {
+        lives--;
+        updateHearts();
+        buttonEl.classList.add("wrong");
+
+        buttons.forEach(btn => {
+          if (btn.textContent.includes(currentQuestion.name)) {
+            btn.classList.add("correct");
+          }
+        });
+
+        feedback.textContent = `Wrong! The correct answer is ${currentQuestion.name}.`;
+
+        if (lives <= 0) {
+          document.getElementById("final-score").textContent = `Final score: ${score}`;
+          document.getElementById("game-over").style.display = "block";
+          return;
+        }
       }
 
+      buttons.forEach(btn => btn.disabled = true);
+
       setTimeout(() => {
-        setSelected(null);
-        setFeedback("");
-        setQuestion(makeQuestion(newLives, score));
-      }, 1100);
+        showQuestion();
+      }, 1000);
     }
-  };
 
-  const heartDisplay = Array.from({ length: 3 }, (_, i) => (
-    <span key={i} className={`text-3xl ${i < lives ? "" : "opacity-25 grayscale"}`}>
-      ❤️
-    </span>
-  ));
+    function resetGame() {
+      score = 0;
+      lives = 3;
+      updateScore();
+      updateHearts();
+      document.getElementById("game-over").style.display = "none";
+      showQuestion();
+    }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50 p-6 text-slate-800">
-      <div className="mx-auto max-w-4xl">
-        <div className="mb-6 rounded-3xl bg-white p-6 shadow-lg ring-1 ring-slate-100">
-          <h1 className="text-3xl font-bold">Thai Consonants Learning Game</h1>
-          <p className="mt-2 text-slate-600">
-            Match the Thai consonant to its correct name. You only have 3 hearts.
-          </p>
-
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <div className="text-sm text-slate-500">Score</div>
-              <div className="text-2xl font-semibold">{score}</div>
-            </div>
-
-            <div>
-              <div className="text-sm text-slate-500">Lives</div>
-              <div className="flex gap-1">{heartDisplay}</div>
-            </div>
-
-            <button
-              onClick={resetGame}
-              className="rounded-2xl bg-slate-900 px-4 py-2 text-white transition hover:scale-[1.02]"
-            >
-              Restart
-            </button>
-          </div>
-        </div>
-
-        <div className="grid gap-6 md:grid-cols-[1.1fr,0.9fr]">
-          <div className="rounded-3xl bg-white p-8 shadow-lg ring-1 ring-slate-100">
-            <div className="text-sm font-medium uppercase tracking-wide text-slate-500">
-              Identify this consonant
-            </div>
-
-            <div className="mt-6 text-center text-8xl font-bold leading-none text-red-500 md:text-9xl">
-              {question.correct.thai}
-            </div>
-
-            <div className="mt-6 text-center text-slate-500">
-              Choose the correct Thai consonant name below
-            </div>
-
-            <div className="mt-8 grid gap-3">
-              {question.options.map((option) => {
-                const isPicked = selected === option.thai;
-                const isCorrect = option.thai === question.correct.thai;
-
-                let extraClass = "hover:border-red-300 hover:bg-red-50";
-                if (selected) {
-                  if (isPicked && isCorrect) extraClass = "border-green-500 bg-green-50";
-                  else if (isPicked && !isCorrect) extraClass = "border-red-500 bg-red-50";
-                  else if (isCorrect) extraClass = "border-green-300 bg-green-50";
-                  else extraClass = "opacity-80";
-                }
-
-                return (
-                  <button
-                    key={option.thai}
-                    onClick={() => handleAnswer(option)}
-                    disabled={!!selected || gameOver}
-                    className={`rounded-2xl border-2 border-slate-200 p-4 text-left transition ${extraClass}`}
-                  >
-                    <div className="text-lg font-semibold">{option.name}</div>
-                    <div className="text-sm text-slate-500">
-                      Hint: {option.hint} • Sound: {option.sound}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            {feedback && (
-              <div className="mt-5 rounded-2xl bg-slate-50 p-4 text-sm text-slate-700">
-                {feedback}
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-6">
-            <div className="rounded-3xl bg-white p-6 shadow-lg ring-1 ring-slate-100">
-              <h2 className="text-xl font-semibold">How to play</h2>
-              <ul className="mt-3 space-y-2 text-slate-600">
-                <li>Look at the Thai consonant.</li>
-                <li>Pick the correct consonant name.</li>
-                <li>You lose 1 heart for each wrong answer.</li>
-                <li>Game over after 3 mistakes.</li>
-              </ul>
-            </div>
-
-            <div className="rounded-3xl bg-white p-6 shadow-lg ring-1 ring-slate-100">
-              <h2 className="text-xl font-semibold">Example</h2>
-              <div className="mt-3 rounded-2xl bg-orange-50 p-4">
-                <div className="text-5xl font-bold text-red-500">ก</div>
-                <div className="mt-2 text-slate-700">ko kai</div>
-                <div className="text-sm text-slate-500">Hint: chicken • Sound: g/k</div>
-              </div>
-            </div>
-
-            {gameO
+    resetGame();
+  </script>
+</body>
+</html>
