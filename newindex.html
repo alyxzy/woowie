@@ -9,7 +9,17 @@
       box-sizing: border-box;
       font-family: Arial, sans-serif;
     }
+<div class="card start-screen" id="start-screen">
+  <h1>CSII Team X presents</h1>
+  <h2>Thai Consonants</h2>
 
+  <input id="nickname" type="text" placeholder="Enter nickname" />
+  <br />
+  <button class="start-btn" onclick="startQuiz()">Start Quiz</button>
+  <p id="error-message"></p>
+</div>
+
+<div id="quiz-area">
     body {
       margin: 0;
       background: linear-gradient(135deg, #fff7ed, #ffffff, #fee2e2);
