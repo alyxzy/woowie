@@ -215,7 +215,7 @@ function resetGame(){
 
 }
 
-async function startQuiz(){
+function startQuiz(){
 
  nickname=document.getElementById("nickname").value
 
@@ -224,24 +224,15 @@ async function startQuiz(){
   return
  }
 
- const r = await fetch(BACKEND_URL+"/api/quiz/start",{
-  method:"POST",
-  headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({nickname})
- })
-
- const data = await r.json()
-
- starts=data.starts
-
- document.getElementById("user-display").textContent=
- nickname+" — Starts: "+starts
+ document.getElementById("user-display").textContent =
+ nickname + " — Starts: 1"
 
  document.getElementById("start-screen").style.display="none"
  document.getElementById("quiz-area").style.display="block"
 
  resetGame()
 
+}
 }
 
 </script>
