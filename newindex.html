@@ -42,6 +42,12 @@
       gap: 16px;
     }
 
+    .stats {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
     .hearts {
       font-size: 30px;
     }
@@ -102,10 +108,6 @@
       border-color: #ef4444 !important;
     }
 
-    .muted {
-      opacity: 0.5;
-    }
-
     .feedback {
       margin-top: 16px;
       padding: 14px;
@@ -140,23 +142,36 @@
       font-size: 28px;
       font-weight: bold;
     }
+
+    .win-box {
+      display: none;
+      background: #ecfdf5;
+      border: 2px solid #86efac;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="card">
       <h1>Thai Consonants Learning Game</h1>
-      <p>Match the Thai consonant to its correct name. You only have 3 hearts.</p>
+      <p>Answer correctly before your 3 hearts run out.</p>
 
       <div class="topbar">
-        <div>
-          <div>Score</div>
-          <div class="score" id="score">0</div>
-        </div>
+        <div class="stats">
+          <div>
+            <div>Score</div>
+            <div class="score" id="score">0</div>
+          </div>
 
-        <div>
-          <div>Lives</div>
-          <div class="hearts" id="hearts">❤️❤️❤️</div>
+          <div>
+            <div>Lives</div>
+            <div class="hearts" id="hearts">❤️❤️❤️</div>
+          </div>
+
+          <div>
+            <div>Remaining Consonants</div>
+            <div class="score" id="remaining">0</div>
+          </div>
         </div>
 
         <button class="restart-btn" onclick="resetGame()">Restart</button>
@@ -178,6 +193,7 @@
           <ul>
             <li>Look at the Thai consonant.</li>
             <li>Pick the correct consonant name.</li>
+            <li>If you get it correct, that consonant is removed.</li>
             <li>You lose 1 heart for each wrong answer.</li>
             <li>Game over after 3 mistakes.</li>
           </ul>
@@ -188,12 +204,18 @@
           <p id="final-score"></p>
           <button class="play-again" onclick="resetGame()">Play Again</button>
         </div>
+
+        <div class="card win-box" id="win-box">
+          <h2 style="color:#15803d;">You Win!</h2>
+          <p id="win-message"></p>
+          <button class="play-again" onclick="resetGame()">Play Again</button>
+        </div>
       </div>
     </div>
   </div>
 
   <script>
-    const consonants = [
+    const allConsonants = [
       { thai: "ก", name: "ko kai", hint: "chicken", sound: "g/k" },
       { thai: "ข", name: "kho khai", hint: "egg", sound: "kh" },
       { thai: "ค", name: "kho khwai", hint: "buffalo", sound: "kh" },
@@ -214,6 +236,7 @@
       { thai: "อ", name: "o ang", hint: "basin", sound: "o" }
     ];
 
+    let remainingConsonants = [];
     let score = 0;
     let lives = 3;
     let currentQuestion = null;
@@ -235,11 +258,28 @@
       document.getElementById("score").textContent = score;
     }
 
+    function updateRemaining() {
+      document.getElementById("remaining").textContent = remainingConsonants.length;
+    }
+
     function showQuestion() {
       if (lives <= 0) return;
 
-      const correct = consonants[Math.floor(Math.random() * consonants.length)];
-      const wrong = shuffle(consonants.filter(c => c.thai !== correct.thai)).slice(0, 3);
+      if (remainingConsonants.length === 0) {
+        document.getElementById("win-box").style.display = "block";
+        document.getElementById("win-message").textContent =
+          `Amazing! You answered all consonants correctly. Final score: ${score}`;
+        document.getElementById("options").innerHTML = "";
+        document.getElementById("thai-letter").textContent = "✓";
+        document.getElementById("feedback").style.display = "none";
+        return;
+      }
+
+      const correct =
+        remainingConsonants[Math.floor(Math.random() * remainingConsonants.length)];
+
+      const wrongPool = allConsonants.filter(c => c.thai !== correct.thai);
+      const wrong = shuffle(wrongPool).slice(0, 3);
       const options = shuffle([correct, ...wrong]);
 
       currentQuestion = correct;
@@ -261,6 +301,8 @@
         btn.onclick = () => handleAnswer(option, btn);
         optionsDiv.appendChild(btn);
       });
+
+      updateRemaining();
     }
 
     function handleAnswer(option, buttonEl) {
@@ -276,6 +318,11 @@
         updateScore();
         buttonEl.classList.add("correct");
         feedback.textContent = `Correct! ${currentQuestion.thai} is ${currentQuestion.name}.`;
+
+        remainingConsonants = remainingConsonants.filter(
+          c => c.thai !== currentQuestion.thai
+        );
+        updateRemaining();
       } else {
         lives--;
         updateHearts();
@@ -304,11 +351,20 @@
     }
 
     function resetGame() {
+      remainingConsonants = [...allConsonants];
       score = 0;
       lives = 3;
+      locked = false;
+      currentQuestion = null;
+
       updateScore();
       updateHearts();
+      updateRemaining();
+
       document.getElementById("game-over").style.display = "none";
+      document.getElementById("win-box").style.display = "none";
+      document.getElementById("feedback").style.display = "none";
+
       showQuestion();
     }
 
