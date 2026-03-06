@@ -26,12 +26,59 @@
       background: white;
       border-radius: 24px;
       padding: 24px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
       margin-bottom: 24px;
     }
 
-    h1, h2, p {
+    h1, h2, h3, p {
       margin-top: 0;
+    }
+
+    .center {
+      text-align: center;
+    }
+
+    .start-screen {
+      max-width: 420px;
+      margin: 60px auto;
+      text-align: center;
+    }
+
+    .start-screen input {
+      width: 100%;
+      max-width: 260px;
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+
+    .start-btn,
+    .restart-btn,
+    .play-again {
+      border: none;
+      border-radius: 14px;
+      padding: 10px 18px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .start-btn {
+      background: #3b82f6;
+      color: white;
+      margin-top: 18px;
+    }
+
+    .restart-btn {
+      background: #0f172a;
+      color: white;
+    }
+
+    .play-again {
+      background: #ef4444;
+      color: white;
+      margin-top: 12px;
     }
 
     .topbar {
@@ -46,6 +93,11 @@
       display: flex;
       gap: 24px;
       flex-wrap: wrap;
+    }
+
+    .score {
+      font-size: 28px;
+      font-weight: bold;
     }
 
     .hearts {
@@ -95,7 +147,7 @@
 
     button.option:disabled {
       cursor: not-allowed;
-      opacity: 0.9;
+      opacity: 0.95;
     }
 
     .correct {
@@ -115,32 +167,8 @@
       background: #f8fafc;
     }
 
-    .restart-btn {
-      background: #0f172a;
-      color: white;
-      border: none;
-      border-radius: 14px;
-      padding: 10px 16px;
-      cursor: pointer;
-    }
-
-    .play-again {
-      background: #ef4444;
-      color: white;
-      border: none;
-      border-radius: 14px;
-      padding: 10px 16px;
-      cursor: pointer;
-      margin-top: 12px;
-    }
-
     ul {
       padding-left: 20px;
-    }
-
-    .score {
-      font-size: 28px;
-      font-weight: bold;
     }
 
     .win-box {
@@ -148,73 +176,102 @@
       background: #ecfdf5;
       border: 2px solid #86efac;
     }
+
+    #quiz-area {
+      display: none;
+    }
+
+    #error-message {
+      color: #dc2626;
+      margin-top: 12px;
+      min-height: 20px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="card">
-      <h1>Thai Consonants Learning Game</h1>
-      <p>Answer correctly before your 3 hearts run out.</p>
 
-      <div class="topbar">
-        <div class="stats">
-          <div>
-            <div>Score</div>
-            <div class="score" id="score">0</div>
-          </div>
+    <div class="card start-screen" id="start-screen">
+      <h1>CSII Team X presents</h1>
+      <h2>Thai Consonants</h2>
 
-          <div>
-            <div>Lives</div>
-            <div class="hearts" id="hearts">❤️❤️❤️</div>
-          </div>
-
-          <div>
-            <div>Remaining Consonants</div>
-            <div class="score" id="remaining">0</div>
-          </div>
-        </div>
-
-        <button class="restart-btn" onclick="resetGame()">Restart</button>
-      </div>
+      <input id="nickname" type="text" placeholder="Enter nickname" />
+      <br />
+      <button class="start-btn" onclick="startQuiz()">Start Quiz</button>
+      <p id="error-message"></p>
     </div>
 
-    <div class="layout">
-      <div class="card">
-        <h2>Identify this consonant</h2>
-        <div class="letter" id="thai-letter">ก</div>
-        <p style="text-align:center;">Choose the correct Thai consonant name below</p>
-        <div class="options" id="options"></div>
-        <div class="feedback" id="feedback" style="display:none;"></div>
+    <div id="quiz-area">
+      <div class="center" style="margin-bottom: 16px;">
+        <h3 id="user-display"></h3>
       </div>
 
-      <div>
+      <div class="card">
+        <h1>Thai Consonant Drill</h1>
+        <p>Answer correctly before your 3 hearts run out.</p>
+
+        <div class="topbar">
+          <div class="stats">
+            <div>
+              <div>Score</div>
+              <div class="score" id="score">0</div>
+            </div>
+
+            <div>
+              <div>Lives</div>
+              <div class="hearts" id="hearts">❤️❤️❤️</div>
+            </div>
+
+            <div>
+              <div>Remaining Consonants</div>
+              <div class="score" id="remaining">0</div>
+            </div>
+          </div>
+
+          <button class="restart-btn" onclick="resetGame()">Restart</button>
+        </div>
+      </div>
+
+      <div class="layout">
         <div class="card">
-          <h2>How to play</h2>
-          <ul>
-            <li>Look at the Thai consonant.</li>
-            <li>Pick the correct consonant name.</li>
-            <li>If you get it correct, that consonant is removed.</li>
-            <li>You lose 1 heart for each wrong answer.</li>
-            <li>Game over after 3 mistakes.</li>
-          </ul>
+          <h2>Identify this consonant</h2>
+          <div class="letter" id="thai-letter">ก</div>
+          <p style="text-align:center;">Choose the correct Thai consonant name below</p>
+          <div class="options" id="options"></div>
+          <div class="feedback" id="feedback" style="display:none;"></div>
         </div>
 
-        <div class="card" id="game-over" style="display:none; background:#fef2f2; border:2px solid #fecaca;">
-          <h2 style="color:#dc2626;">Game Over</h2>
-          <p id="final-score"></p>
-          <button class="play-again" onclick="resetGame()">Play Again</button>
-        </div>
+        <div>
+          <div class="card">
+            <h2>How to play</h2>
+            <ul>
+              <li>Look at the Thai consonant.</li>
+              <li>Pick the correct consonant name.</li>
+              <li>If you get it correct, that consonant is removed.</li>
+              <li>You lose 1 heart for each wrong answer.</li>
+              <li>Game over after 3 mistakes.</li>
+            </ul>
+          </div>
 
-        <div class="card win-box" id="win-box">
-          <h2 style="color:#15803d;">You Win!</h2>
-          <p id="win-message"></p>
-          <button class="play-again" onclick="resetGame()">Play Again</button>
+          <div class="card" id="game-over" style="display:none; background:#fef2f2; border:2px solid #fecaca;">
+            <h2 style="color:#dc2626;">Game Over</h2>
+            <p id="final-score"></p>
+            <button class="play-again" onclick="resetGame()">Play Again</button>
+          </div>
+
+          <div class="card win-box" id="win-box">
+            <h2 style="color:#15803d;">You Win!</h2>
+            <p id="win-message"></p>
+            <button class="play-again" onclick="resetGame()">Play Again</button>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
   <script>
+    const BACKEND_URL = "https://woowie-service.onrender.com";
+
     const allConsonants = [
       { thai: "ก", name: "ko kai", hint: "chicken", sound: "g/k" },
       { thai: "ข", name: "kho khai", hint: "egg", sound: "kh" },
@@ -241,6 +298,8 @@
     let lives = 3;
     let currentQuestion = null;
     let locked = false;
+    let currentNickname = "";
+    let currentStarts = 0;
 
     function shuffle(array) {
       return [...array].sort(() => Math.random() - 0.5);
@@ -260,6 +319,11 @@
 
     function updateRemaining() {
       document.getElementById("remaining").textContent = remainingConsonants.length;
+    }
+
+    function updateUserDisplay() {
+      document.getElementById("user-display").textContent =
+        currentNickname + " — Starts: " + currentStarts;
     }
 
     function showQuestion() {
@@ -368,7 +432,46 @@
       showQuestion();
     }
 
-    resetGame();
+    async function startQuiz() {
+      const nickname = document.getElementById("nickname").value.trim();
+      const errorMessage = document.getElementById("error-message");
+
+      errorMessage.textContent = "";
+
+      if (!nickname) {
+        errorMessage.textContent = "Please enter your nickname.";
+        return;
+      }
+
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/quiz/start`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ nickname })
+        });
+
+        if (!response.ok) {
+          throw new Error("Backend request failed");
+        }
+
+        const data = await response.json();
+
+        currentNickname = nickname;
+        currentStarts = data.starts;
+
+        updateUserDisplay();
+
+        document.getElementById("start-screen").style.display = "none";
+        document.getElementById("quiz-area").style.display = "block";
+
+        resetGame();
+      } catch (error) {
+        errorMessage.textContent = "Could not connect to backend. Check your service URL.";
+        console.error(error);
+      }
+    }
   </script>
 </body>
 </html>
